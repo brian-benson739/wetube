@@ -5,10 +5,11 @@
   "author": "Brian Benson",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon --exec babel-node src/server.js"
+    "dev": "nodemon --exec babel-node src/init.js"
   },
   "dependencies": {
     "express": "^5.1.0",
+    "mongoose": "^8.20.0",
     "morgan": "^1.10.1",
     "pug": "^3.0.3"
   },

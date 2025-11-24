@@ -8,7 +8,9 @@
     "dev": "nodemon --exec babel-node src/init.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^4.17.1",
+    "express-session": "^1.18.2",
     "mongoose": "^8.20.0",
     "morgan": "^1.10.1",
     "pug": "^3.0.3"

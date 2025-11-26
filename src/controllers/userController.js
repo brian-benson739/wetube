@@ -69,7 +69,6 @@ export const startGithubLogin = (req, res) => {
     allow_signup: false,
     scope: "read:user user:email"
   };
-  console.log("config", config);
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
   return res.redirect(finalUrl);
@@ -142,7 +141,67 @@ export const logout = (req, res) => {
 export const getEdit = (req, res) => {
   return res.render("edit-profile", { pageTitle: "Edit Profile" });
 };
-export const postEdit = (req, res) => {
-  return res.render("edit-profile")
-}
-export const see = (req, res) => res.send("See User");
+
+export const postEdit = async (req, res) => {
+  const {
+    session: {
+      user: { _id, avatarUrl }
+    },
+    body: { name, email, username, location },
+    file
+  } = req;
+  const updatedUser = await User.findByIdAndUpdate(
+    _id,
+    {
+      avatarUrl: file ? file.path : avatarUrl,
+      name,
+      email,
+      username,
+      location
+    },
+    { new: true }
+  );
+  req.session.user = updatedUser;
+  return res.redirect("/users/edit");
+};
+
+export const getChangePassword = (req, res) => {
+  if (req.session.user.socialOnly === true) {
+    return res.redirect("/");
+  }
+  return res.render("users/change-password", { pageTitle: "Change Password" });
+};
+export const postChangePassword = async (req, res) => {
+  const {
+    session: {
+      user: { _id }
+    },
+    body: { oldPassword, newPassword, newPasswordCofirmation }
+  } = req;
+  const user = await User.findById(_id);
+  const ok = await bcrypt.compare(oldPassword, user.password);
+  if (!ok) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "Change Password",
+      errorMessage: "The Current Password is Incorrect 😑"
+    });
+  }
+  if (newPassword != newPasswordCofirmation) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "Change Password",
+      errorMessage: "The new Password Doesn't Match the Confirmation 🔗"
+    });
+  }
+  user.password = newPassword;
+  await user.save();
+  return res.redirect("/");
+};
+
+export const see = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  return res.render("users/profile", {
+    pageTitle: `${user.name}의Profile`,
+    user
+  });
+};

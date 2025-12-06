@@ -1,5 +1,5 @@
 import Video from "../models/Video";
-import User from "../models/User";
+import User  from "../models/User";
 
 export const home = async (req, res) => {
   const videos = await Video.find({})
